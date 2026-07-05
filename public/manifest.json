@@ -1,0 +1,16 @@
+{
+  "name": "KarnatakaHomes",
+  "short_name": "KHomes",
+  "description": "A Karnataka-first real estate marketplace for buyers, sellers, agents, and builders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#115EBC",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

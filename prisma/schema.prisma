@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  AGENT
+  BUILDER
+  ADMIN
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  VILLA
+  DUPLEX
+  PENTHOUSE
+  COMMERCIAL_SHOP
+  OFFICE
+  WAREHOUSE
+  INDUSTRIAL
+  AGRICULTURAL_LAND
+  RESIDENTIAL_PLOT
+  FARMHOUSE
+  PG
+  HOSTEL
+}
+
+enum ListingIntent {
+  SALE
+  RENT
+  LEASE
+  AUCTION
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_VERIFICATION
+  ACTIVE
+  REJECTED
+  SOLD
+  RENTED
+  ARCHIVED
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  phone           String?
+  role            UserRole  @default(BUYER)
+  avatarUrl       String?
+  isVerified      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  listings        Listing[]
+  leads           Lead[]    @relation("BuyerLeads")
+  assignedLeads   Lead[]    @relation("SellerLeads")
+  savedProperties SavedProperty[]
+}
+
+model Listing {
+  id              String        @id @default(cuid())
+  publicId        String        @unique
+  title           String
+  slug            String        @unique
+  description     String
+  type            PropertyType
+  intent          ListingIntent
+  status          ListingStatus @default(PENDING_VERIFICATION)
+  price           Decimal       @db.Decimal(14, 2)
+  pricePerSqft    Decimal?      @db.Decimal(12, 2)
+  areaSqft        Int
+  builtUpSqft     Int?
+  carpetSqft      Int?
+  bedrooms        Int?
+  bathrooms       Int?
+  balconies       Int?
+  parking         Int?
+  floor           Int?
+  totalFloors     Int?
+  facing          String?
+  furnishing      String?
+  ownership       String?
+  ageYears        Int?
+  district        String
+  taluk           String?
+  village         String?
+  city            String
+  locality        String
+  pincode         String?
+  latitude        Decimal?      @db.Decimal(10, 7)
+  longitude       Decimal?      @db.Decimal(10, 7)
+  roadWidthFeet   Int?
+  amenities       String[]
+  nearby          Json?
+  documents       Json?
+  isVerified      Boolean       @default(false)
+  isFeatured      Boolean       @default(false)
+  ownerId         String
+  owner           User          @relation(fields: [ownerId], references: [id])
+  media           Media[]
+  leads           Lead[]
+  savedBy         SavedProperty[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([district, city, type, intent, status])
+  @@index([price, areaSqft])
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url         String
+  publicId    String?
+  mediaType   String
+  alt         String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  buyerId     String?
+  buyer       User?    @relation("BuyerLeads", fields: [buyerId], references: [id])
+  sellerId    String?
+  seller      User?    @relation("SellerLeads", fields: [sellerId], references: [id])
+  name        String
+  email       String?
+  phone       String?
+  source      String   @default("website")
+  message     String?
+  status      String   @default("new")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SavedProperty {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model SearchEvent {
+  id        String   @id @default(cuid())
+  query     String?
+  district  String?
+  filters   Json?
+  userId    String?
+  createdAt DateTime @default(now())
+}
