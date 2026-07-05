@@ -2,10 +2,9 @@ import {
   BarChart3,
   Bell,
   Bot,
-  Building2,
   Cloud,
   Database,
-  Github,
+  GitBranch,
   Heart,
   Mail,
   Map,
@@ -170,7 +169,7 @@ export function AiAndSeoBand() {
 }
 
 export function FreeTierStack() {
-  const serviceIcons = [Cloud, Database, Cloud, Bell, Mail, Github];
+  const serviceIcons = [Cloud, Database, Cloud, Bell, Mail, GitBranch];
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8" id="deploy">
